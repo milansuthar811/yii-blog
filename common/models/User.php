@@ -1,4 +1,5 @@
 <?php
+
 namespace common\models;
 
 use Yii;
@@ -21,11 +22,14 @@ use yii\web\IdentityInterface;
  * @property integer $created_at
  * @property integer $updated_at
  * @property string $password write-only password
+ * @property integer $birthdate
+ * @property integer $usertype
+ * @property string $file
  */
 class User extends ActiveRecord implements IdentityInterface
 {
     const STATUS_DELETED = 2;
-    const STATUS_INACTIVE =0;
+    const STATUS_INACTIVE = 0;
     const STATUS_ACTIVE = 1;
 
 
@@ -55,6 +59,8 @@ class User extends ActiveRecord implements IdentityInterface
         return [
             ['status', 'default', 'value' => self::STATUS_INACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE, self::STATUS_DELETED]],
+            ['email', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This email address has already been taken.'],
+
         ];
     }
 
@@ -109,7 +115,8 @@ class User extends ActiveRecord implements IdentityInterface
      * @param string $token verify email token
      * @return static|null
      */
-    public static function findByVerificationToken($token) {
+    public static function findByVerificationToken($token)
+    {
         return static::findOne([
             'verification_token' => $token,
             'status' => self::STATUS_INACTIVE
@@ -205,7 +212,7 @@ class User extends ActiveRecord implements IdentityInterface
     /**
      * Removes password reset token
      */
-    public function removePasswordResetToken()  
+    public function removePasswordResetToken()
     {
         $this->password_reset_token = null;
     }

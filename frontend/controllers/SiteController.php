@@ -1,4 +1,5 @@
 <?php
+
 namespace frontend\controllers;
 
 use frontend\models\ResendVerificationEmailForm;
@@ -14,6 +15,9 @@ use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
 use frontend\models\ContactForm;
+use yii\base\Model;
+use common\models\User;
+use yii\web\UploadedFile;
 
 /**
  * Site controller
@@ -87,13 +91,12 @@ class SiteController extends Controller
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
-
         $model = new LoginForm();
+
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
             return $this->goBack();
         } else {
             $model->password = '';
-
             return $this->render('login', [
                 'model' => $model,
             ]);
@@ -153,11 +156,20 @@ class SiteController extends Controller
     public function actionSignup()
     {
         $model = new SignupForm();
-        if ($model->load(Yii::$app->request->post()) && $model->signup()) {
-echo '<pre>';print_r(Yii::$app->request->post());echo '</pre>';exit();            Yii::$app->session->setFlash('success', 'Thank you for registration. Please check your inbox for verification email.');
-            return $this->goHome();
+        if ($model->load(Yii::$app->request->post())) {
+            $model->usertype = 'dfdfd';
+
+            if (($model->file = UploadedFile::getInstance($model, 'file')) && $model->validate()) {
+
+                $model->file->saveAs('uploads/' . $model->file->baseName . '_' . time() . '.' . $model->file->extension);
+                $model->file =  $model->file->baseName . '_' . time() . '.' . $model->file->extension;
+            }
+            if ($model->signup()) {
+                Yii::$app->session->setFlash('success', 'Thank you for registration');
+                return $this->goHome();
+            }
         }
-     return $this->render('signup', [
+        return $this->render('signup', [
             'model' => $model,
         ]);
     }

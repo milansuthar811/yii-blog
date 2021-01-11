@@ -1,9 +1,11 @@
 <?php
+
 namespace frontend\models;
 
 use Yii;
 use yii\base\Model;
 use common\models\User;
+use yii\web\UploadedFile;
 
 /**
  * Signup form
@@ -13,28 +15,27 @@ class SignupForm extends Model
     public $username;
     public $email;
     public $password;
-    public $date;
-
-
+    public $status;
+    public $birthdate;
+    public $file;
+    public $usertype;
     /**
-    * {@inheritdoc}
-    */
+     * {@inheritdoc}
+     */
     public function rules()
     {
         return [
             ['username', 'trim'],
-            ['username', 'required'],
             ['username', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This username has already been taken.'],
             ['username', 'string', 'min' => 2, 'max' => 255],
-
             ['email', 'trim'],
-            ['email', 'required'],
             ['email', 'email'],
             ['email', 'string', 'max' => 255],
             ['email', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This email address has already been taken.'],
-
-            ['password', 'required'],
             ['password', 'string', 'min' => Yii::$app->params['user.passwordMinLength']],
+            [['file'], 'file',  'skipOnEmpty' => false,'extensions' => 'jpg, png,jpeg'],
+            [['status', 'usertype','username','password','email'], 'safe'],
+            [['birthdate', 'file', 'usertype', 'username','email','password'] ,'required']
         ];
     }
 
@@ -45,11 +46,10 @@ class SignupForm extends Model
      */
     public function signup()
     {
-        if (!$this->validate()) {
-            return null;
-        }
-        
         $user = new User();
+        $user->usertype = $this->usertype;
+        $user->file = $this->file;
+        $user->birthdate = $this->birthdate;
         $user->username = $this->username;
         $user->email = $this->email;
         $user->setPassword($this->password);
@@ -66,6 +66,7 @@ class SignupForm extends Model
      */
     protected function sendEmail($user)
     {
+       
         return Yii::$app
             ->mailer
             ->compose(
