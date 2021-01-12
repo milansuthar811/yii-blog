@@ -31,15 +31,15 @@ class Post extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
+    
     public function rules()
     {
         return [
-            [[ 'article_name', 'article_desc', 'status', 'created_at', 'updated_at', 'is_deleted'], 'required'],
-            [['article_desc'], 'string'],
+            [[ 'article_name', 'article_desc', 'status'], 'required'],
+            [['article_name', 'cover_image_id', 'article_desc'], 'string'],
             [['category_id', 'created_at', 'updated_at', 'is_deleted'], 'integer'],
             [[ 'article_name', 'cover_image_id', 'status'], 'string', 'max' => 255],
-            [['status'], 'unique'],
-            [['cover_image_id'], 'unique'],
+            [['article_name','article_desc','cover_image_id','status'], 'safe'],
         ];
     }
 

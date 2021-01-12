@@ -1,0 +1,8 @@
+{
+    "search.exclude": {
+        "**/*.log": true,
+        "**/*.sql": true,
+        "**/vendor/": true
+    },
+    "workbench.editor.labelFormat": "medium"
+}

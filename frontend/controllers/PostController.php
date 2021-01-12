@@ -5,6 +5,7 @@ namespace frontend\controllers;
 use Yii;
 use frontend\models\Post;
 use frontend\models\PostSearch;
+use yii\web\UploadedFile;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -66,30 +67,24 @@ class PostController extends Controller
     {
 
         $model = new Post();
-        if (Yii::$app->request->post()) {
+        if ($post = Yii::$app->request->post()) {
 
-        $post=Yii::$app->request->post('Post');
-   //     if ($model->load($post=Yii::$app->request->post())) {
-        //if ($model->save()) {
-            $model->article_name=$post['article_name'];
-            $model->article_desc=$post['article_desc'];
-            $model->cover_image_id=$post['cover_image_id'];
-            $model->userid=$post['userid'];
-            $model->category_id=$post['category_id'];
-            $model->created_at=$post['created_at'];
-            $model->updated_at=$post['updated_at'];
-            $model->is_deleted=$post['is_deleted'];
-            $model->status=$post['status'];
-           if($model->save()){
+            if ($model->load($post)) {
+                if ($model->save()) {
+                    if (($model->file = UploadedFile::getInstance($model, 'file')) && $model->validate()) {
 
-           }else{
-           echo '<pre>';print_r($model->getErrors());echo '</pre>';exit();    
-           }
-            return $this->redirect(['index']);
-         //   return $this->redirect(['view', 'id' => $model->postid]);
-    //    }
-   // }
+                        $model->file->saveAs('uploads/' . $model->file->baseName . '_' . time() . '.' . $model->file->extension);
+                        $model->file =  $model->file->baseName . '_' . time() . '.' . $model->file->extension;
+                    }
+
+                    Yii::$app->session->setFlash('success', 'post created');
+
+                    return $this->redirect(['index']);
+                }
+            }
         }
+
+
         return $this->render('create', [
             'model' => $model,
         ]);

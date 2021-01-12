@@ -18,12 +18,11 @@ class m210102_181703_create_post_table extends Migration
             'article_name' => $this->string()->notNull(),
             'article_desc' => $this->text()->notNull(),
             'cover_image_id' => $this->string(),
-            'status' => $this->string()->notNull(),
+            'status' => "ENUM('Y', 'N', 'X') DEFAULT  'Y'" ,
             'category_id' => $this->integer(),
             'created_at' => $this->integer()->notNull(),
             'updated_at' => $this->integer()->notNull(),
-            'is_deleted' => $this->integer()->notNull(),
-         
+            'is_deleted' => "ENUM('N', 'Y') DEFAULT 'N'" ,
         ]);
     }
 
